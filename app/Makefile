@@ -53,12 +53,12 @@ ifeq ($(COIN),POLYX)
 # Main app configuration
 DEFINES += APP_STANDARD
 APPNAME = "Polymesh"
-APPPATH = "44'/434'"				# FIXME: update this
+APPPATH = "44'/595'"				# FIXME: update this
 
 else ifeq ($(COIN),Ledgeracio)
 DEFINES += APP_RESTRICTED
 APPNAME = "Polymesh_sec"
-APPPATH = "44'/434'"				# FIXME: update this
+APPPATH = "44'/595'"				# FIXME: update this
 
 else
 define error_message
