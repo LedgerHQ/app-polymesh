@@ -196,6 +196,49 @@ describe('Standard', function () {
         }
     });
 
+    test.each(models)('sign basic crash (%s)', async function (_, {model, prefix, path}) {
+        const sim = new Zemu(path);
+        try {
+            await sim.start({model, ...simOptions});
+            const app = newPolymeshApp(sim.getTransport());
+            const pathAccount = 0x80000000;
+            const pathChange = 0x80000000;
+            const pathIndex = 0x80000000;
+
+            let txBlobStr = "24041802000000000000047c4b2319b2bb91b6685716d17f52e5d2b179b2837272a0d12269b8bbec47b7a600e5013c00dd0700000500000012fddc9e2128b3fe571e4e5427addcb87fcaf08493867a68dd6ae44b406b39c7ad81e455cc6e90afcb59fa70d45dc3a485d231450c2741e384e5a79e4424efa4";
+
+            const txBlob = Buffer.from(txBlobStr, "hex");
+
+            const responseAddr = await app.getAddress(pathAccount, pathChange, pathIndex);
+            const pubKey = Buffer.from(responseAddr.pubKey, "hex");
+
+            // do not wait here.. we need to navigate
+            const signatureRequest = app.sign(pathAccount, pathChange, pathIndex, txBlob);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot());
+
+            await sim.compareSnapshotsAndAccept(".", `${prefix.toLowerCase()}-sign_basic_crash`, model === "nanos" ? 10 : 4);
+
+            let signatureResponse = await signatureRequest;
+            console.log(signatureResponse);
+
+            expect(signatureResponse.return_code).toEqual(0x9000);
+            expect(signatureResponse.error_message).toEqual("No errors");
+
+            // Now verify the signature
+            let prehash = txBlob;
+            if (txBlob.length > 256) {
+                const context = blake2bInit(32, null);
+                blake2bUpdate(context, txBlob);
+                prehash = Buffer.from(blake2bFinal(context));
+            }
+            const valid = ed25519.verify(signatureResponse.signature.slice(1), prehash, pubKey);
+            expect(valid).toEqual(true);
+        } finally {
+            await sim.close();
+        }
+    });
+
     test.each(models)('sign basic expert (%s)', async function (_, {model, prefix, path}) {
         const sim = new Zemu(path);
         try {
