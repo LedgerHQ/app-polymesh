@@ -30,6 +30,7 @@
 #include "coin.h"
 #include "zxmacros.h"
 #include "secret.h"
+#include "app_mode.h"
 
 #if defined(APP_RESTRICTED)
 #include "allowlist.h"

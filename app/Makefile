@@ -172,7 +172,7 @@ endif
 #########################
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os -Wno-unknown-pragmas
+CFLAGS += -O3 -Os -Wno-unknown-pragmas -Wvla
 
 AS := $(GCCPATH)arm-none-eabi-gcc
 AFLAGS +=

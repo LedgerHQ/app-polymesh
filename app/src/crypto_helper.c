@@ -48,8 +48,8 @@ int ss58hash(const unsigned char *in, unsigned int inLen,
 
 #endif
 
-parser_error_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
-                                       uint8_t addressType, const uint8_t *pubkey, uint16_t *outLen) {
+zxerr_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
+                                uint8_t addressType, const uint8_t *pubkey, size_t *outLen) {
     if (buffer == NULL || buffer_len < SS58_ADDRESS_MAX_LEN) {
         return 0;
     }
@@ -70,8 +70,8 @@ parser_error_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
     unencoded[33] = hash[0];
     unencoded[34] = hash[1];
 
-    size_t outLen = buffer_len;
-    encode_base58(unencoded, 35, buffer, &outLen);
+    *outLen = buffer_len;
+    encode_base58(unencoded, 35, buffer, outLen);
 
-    return outLen;
+    return zxerr_ok;
 }
