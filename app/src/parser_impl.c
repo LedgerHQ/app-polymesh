@@ -482,8 +482,13 @@ parser_error_t _toStringPubkeyAsAddress(const uint8_t *pubkey,
                                         char *outValue, uint16_t outValueLen,
                                         uint8_t pageIdx, uint8_t *pageCount) {
     char bufferUI[200];
+    size_t outLen;
 
-    if (crypto_SS58EncodePubkey((uint8_t *) bufferUI, sizeof(bufferUI), __address_type, pubkey) == 0) {
+    if (crypto_SS58EncodePubkey((uint8_t *) bufferUI, sizeof(bufferUI), __address_type, pubkey, &outLen) != zxerr_ok) {
+        return parser_no_data;
+    }
+
+    if (outLen == 0) {
         return parser_no_data;
     }
 

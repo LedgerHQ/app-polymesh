@@ -35,7 +35,7 @@ typedef struct {
     std::vector<std::string> expected_expert;
 } testcase_t;
 
-class JsonTestsA : public ::testing::TestWithParam<testcase_t> {
+class JsonTests_Curr : public ::testing::TestWithParam<testcase_t> {
 public:
     struct PrintToStringParamName {
         template<class ParamType>
@@ -48,7 +48,20 @@ public:
     };
 };
 
-class JsonTestsB : public ::testing::TestWithParam<testcase_t> {
+class JsonTests_Bugs : public ::testing::TestWithParam<testcase_t> {
+public:
+    struct PrintToStringParamName {
+        template<class ParamType>
+        std::string operator()(const testing::TestParamInfo<ParamType> &info) const {
+            auto p = static_cast<testcase_t>(info.param);
+            std::stringstream ss;
+            ss << p.index << "_" << p.name;
+            return ss.str();
+        }
+    };
+};
+
+class JsonTests_Prev : public ::testing::TestWithParam<testcase_t> {
 public:
     struct PrintToStringParamName {
         template<class ParamType>
@@ -75,6 +88,7 @@ std::vector<testcase_t> GetJsonTestCases(std::string jsonFile) {
                         << "Check that your working directory points to the tests directory\n"
                         << "In CLion use $PROJECT_DIR$\\tests\n"
                         << "******************\n";
+
     if (!inFile.is_open()) {
         return answer;
     }
@@ -143,9 +157,9 @@ INSTANTIATE_TEST_SUITE_P
 
 (
     JsonTestCasesCurrentTxVer,
-    JsonTestsA,
+    JsonTests_Curr,
     ::testing::ValuesIn(GetJsonTestCases("testcases_current.json")),
-    JsonTestsA::PrintToStringParamName()
+    JsonTests_Curr::PrintToStringParamName()
 );
 
 
@@ -153,15 +167,28 @@ INSTANTIATE_TEST_SUITE_P
 
 (
     JsonTestCasesPreviousTxVer,
-    JsonTestsB,
+    JsonTests_Prev,
     ::testing::ValuesIn(GetJsonTestCases("testcases_previous.json")),
-    JsonTestsB::PrintToStringParamName()
+    JsonTests_Prev::PrintToStringParamName()
+);
+
+INSTANTIATE_TEST_SUITE_P
+
+(
+    JsonTestCasesCurrentTxVer,
+    JsonTests_Bugs,
+    ::testing::ValuesIn(GetJsonTestCases("testcases_bugs.json")),
+    JsonTests_Bugs::PrintToStringParamName()
 );
 
 // Parametric test using current runtime:
-TEST_P(JsonTestsA, CheckUIOutput_CurrentTX_Normal) { check_testcase(GetParam(), false); }
-TEST_P(JsonTestsA, CheckUIOutput_CurrentTX_Expert) { check_testcase(GetParam(), true); }
+TEST_P(JsonTests_Curr, CheckUIOutput_CurrentTX_Normal) { check_testcase(GetParam(), false); }
+TEST_P(JsonTests_Curr, CheckUIOutput_CurrentTX_Expert) { check_testcase(GetParam(), true); }
 
 // Parametric test using previous runtime:
-TEST_P(JsonTestsB, CheckUIOutput_PreviousTX_Normal) { check_testcase(GetParam(), false); }
-TEST_P(JsonTestsB, CheckUIOutput_PreviousTX_Expert) { check_testcase(GetParam(), true); }
+TEST_P(JsonTests_Prev, CheckUIOutput_PreviousTX_Normal) { check_testcase(GetParam(), false); }
+TEST_P(JsonTests_Prev, CheckUIOutput_PreviousTX_Expert) { check_testcase(GetParam(), true); }
+
+// Parametric test using previous runtime:
+TEST_P(JsonTests_Bugs, CheckUIOutput_PreviousTX_Normal) { check_testcase(GetParam(), false); }
+TEST_P(JsonTests_Bugs, CheckUIOutput_PreviousTX_Expert) { check_testcase(GetParam(), true); }
