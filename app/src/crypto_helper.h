@@ -24,14 +24,15 @@ extern "C" {
 #include "coin.h"
 #include <stdbool.h>
 #include <sigutils.h>
+#include <parser_common.h>
 #include "zxerror.h"
 
 #define SS58_BLAKE_PREFIX  (const unsigned char *) "SS58PRE"
 #define SS58_BLAKE_PREFIX_LEN 7
 #define SS58_ADDRESS_MAX_LEN 60u
 
-uint8_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
-                                uint8_t addressType, const uint8_t *pubkey);
+parser_error_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
+                                       uint8_t addressType, const uint8_t *pubkey, uint16_t *outLen);
 
 #ifdef __cplusplus
 }

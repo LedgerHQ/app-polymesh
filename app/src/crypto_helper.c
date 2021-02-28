@@ -33,6 +33,7 @@ int ss58hash(const unsigned char *in, unsigned int inLen,
 #else
 
 #include <hexutils.h>
+#include <parser_common.h>
 #include "blake2.h"
 
 int ss58hash(const unsigned char *in, unsigned int inLen,
@@ -47,8 +48,8 @@ int ss58hash(const unsigned char *in, unsigned int inLen,
 
 #endif
 
-uint8_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
-                                uint8_t addressType, const uint8_t *pubkey) {
+parser_error_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
+                                       uint8_t addressType, const uint8_t *pubkey, uint16_t *outLen) {
     if (buffer == NULL || buffer_len < SS58_ADDRESS_MAX_LEN) {
         return 0;
     }
@@ -59,6 +60,9 @@ uint8_t crypto_SS58EncodePubkey(uint8_t *buffer, uint16_t buffer_len,
 
     uint8_t unencoded[35];
     uint8_t hash[64];
+
+    printf("\n\n[LOG] crypto_SS58EncodePubkey  %p", buffer);
+    printf("\n\n[LOG] crypto_SS58EncodePubkey  %p", pubkey);
 
     unencoded[0] = addressType;                  // address type
     MEMCPY(unencoded + 1, pubkey, 32);           // account id
