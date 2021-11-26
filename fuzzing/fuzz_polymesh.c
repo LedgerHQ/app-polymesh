@@ -27,6 +27,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         fprintf(stderr,
                 "error in parser_getNumItems: %s\n",
                 parser_getErrorDescription(rc));
+        return 1;
     }
 
 //    fprintf(stderr, "----------------------------------------------\n");
@@ -48,6 +49,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
                         (unsigned)i,
                         (unsigned)page_idx,
                         parser_getErrorDescription(rc));
+                return 1;
             }
 
             page_idx += 1;
