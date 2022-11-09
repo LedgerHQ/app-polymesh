@@ -1,18 +1,18 @@
 /*******************************************************************************
-*  (c) 2019 - 2022 Zondax GmbH
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-********************************************************************************/
+ *  (c) 2019 - 2022 Zondax AG
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
 #pragma once
 
 #ifdef __cplusplus
@@ -39,19 +39,19 @@ parser_error_t _readBytes(parser_context_t* c, pd_Bytes_t* v);
 parser_error_t _readHash(parser_context_t* c, pd_Hash_t* v);
 parser_error_t _readOptionu16(parser_context_t* c, pd_Optionu16_t* v);
 parser_error_t _readCall(parser_context_t* c, pd_Call_t* v);
-parser_error_t _readHeader(parser_context_t* c, pd_Header_t* v);
+parser_error_t _readCompactBalanceOf(parser_context_t* c, pd_CompactBalanceOf_t* v);
+parser_error_t _readOptionBytes(parser_context_t* c, pd_OptionBytes_t* v);
 parser_error_t _readBalanceOf(parser_context_t* c, pd_BalanceOf_t* v);
 parser_error_t _readProposal(parser_context_t* c, pd_Proposal_t* v);
 parser_error_t _readVecCall(parser_context_t* c, pd_VecCall_t* v);
 parser_error_t _readBalanceNoSymbol(parser_context_t* c, pd_BalanceNoSymbol_t* v);
-parser_error_t _readCompactBalanceOf(parser_context_t* c, pd_CompactBalanceOf_t* v);
-parser_error_t _readHeartbeat(parser_context_t* c, pd_Heartbeat_t* v);
 parser_error_t _readOptionBalance(parser_context_t* c, pd_OptionBalance_t* v);
 parser_error_t _readOptionBlockNumber(parser_context_t* c, pd_OptionBlockNumber_t* v);
+parser_error_t _readOptionCompactBalanceOf(parser_context_t* c, pd_OptionCompactBalanceOf_t* v);
 parser_error_t _readOptionu32(parser_context_t* c, pd_Optionu32_t* v);
 parser_error_t _readOptionu64(parser_context_t* c, pd_Optionu64_t* v);
-parser_error_t _readVecHeader(parser_context_t* c, pd_VecHeader_t* v);
 parser_error_t _readVecu32(parser_context_t* c, pd_Vecu32_t* v);
+parser_error_t _readVecu8(parser_context_t* c, pd_Vecu8_t* v);
 
 // Common toString functions
 
@@ -146,8 +146,15 @@ parser_error_t _toStringCall(
     uint8_t pageIdx,
     uint8_t* pageCount);
 
-parser_error_t _toStringHeader(
-    const pd_Header_t* v,
+parser_error_t _toStringCompactBalanceOf(
+    const pd_CompactBalanceOf_t* v,
+    char* outValue,
+    uint16_t outValueLen,
+    uint8_t pageIdx,
+    uint8_t* pageCount);
+
+parser_error_t _toStringOptionBytes(
+    const pd_OptionBytes_t* v,
     char* outValue,
     uint16_t outValueLen,
     uint8_t pageIdx,
@@ -181,20 +188,6 @@ parser_error_t _toStringBalanceNoSymbol(
     uint8_t pageIdx,
     uint8_t* pageCount);
 
-parser_error_t _toStringCompactBalanceOf(
-    const pd_CompactBalanceOf_t* v,
-    char* outValue,
-    uint16_t outValueLen,
-    uint8_t pageIdx,
-    uint8_t* pageCount);
-
-parser_error_t _toStringHeartbeat(
-    const pd_Heartbeat_t* v,
-    char* outValue,
-    uint16_t outValueLen,
-    uint8_t pageIdx,
-    uint8_t* pageCount);
-
 parser_error_t _toStringOptionBalance(
     const pd_OptionBalance_t* v,
     char* outValue,
@@ -204,6 +197,13 @@ parser_error_t _toStringOptionBalance(
 
 parser_error_t _toStringOptionBlockNumber(
     const pd_OptionBlockNumber_t* v,
+    char* outValue,
+    uint16_t outValueLen,
+    uint8_t pageIdx,
+    uint8_t* pageCount);
+
+parser_error_t _toStringOptionCompactBalanceOf(
+    const pd_OptionCompactBalanceOf_t* v,
     char* outValue,
     uint16_t outValueLen,
     uint8_t pageIdx,
@@ -223,15 +223,15 @@ parser_error_t _toStringOptionu64(
     uint8_t pageIdx,
     uint8_t* pageCount);
 
-parser_error_t _toStringVecHeader(
-    const pd_VecHeader_t* v,
+parser_error_t _toStringVecu32(
+    const pd_Vecu32_t* v,
     char* outValue,
     uint16_t outValueLen,
     uint8_t pageIdx,
     uint8_t* pageCount);
 
-parser_error_t _toStringVecu32(
-    const pd_Vecu32_t* v,
+parser_error_t _toStringVecu8(
+    const pd_Vecu8_t* v,
     char* outValue,
     uint16_t outValueLen,
     uint8_t pageIdx,

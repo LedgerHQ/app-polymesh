@@ -1,7 +1,7 @@
 #*******************************************************************************
-#   Ledger App
-#   (c) 2018-2021 Zondax GmbH
-#   (c) 2017 Ledger
+#  Ledger App
+#  (c) 2019 - 2022 Zondax AG
+#  (c) 2017 Ledger
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ all: bin/app.elf
 	@echo "APPNAME=\"${APPNAME}\"" >> $(OUTPUT_INSTALLER)
 	@echo "APPVERSION=\"${APPVERSION}\"" >> $(OUTPUT_INSTALLER)
 	@echo "APPPATH=\""${APPPATH}"\"" >> $(OUTPUT_INSTALLER)
-	@echo "LOAD_PARAMS=\"${COMMON_LOAD_PARAMS}\"" >> $(OUTPUT_INSTALLER)
-	@echo "DELETE_PARAMS=\"${COMMON_DELETE_PARAMS}\"" >> $(OUTPUT_INSTALLER)
+	@echo "LOAD_PARAMS=($$(echo "${APP_LOAD_PARAMS}" | sed -e "s|"${APPNAME}"|\""${APPNAME}"\"|"))" >> $(OUTPUT_INSTALLER)
+	@echo "DELETE_PARAMS=($$(echo "${COMMON_DELETE_PARAMS}" | sed -e "s|"${APPNAME}"|\""${APPNAME}"\"|"))" >> $(OUTPUT_INSTALLER)
 	@echo "APPHEX=\"" >> $(OUTPUT_INSTALLER)
 	@cat $(CURDIR)/bin/app.hex >> $(OUTPUT_INSTALLER)
 	@echo "\"" >> $(OUTPUT_INSTALLER)
@@ -39,8 +39,6 @@ all: bin/app.elf
 	@rm $(CURDIR)/output/app.elf
 
 include $(BOLOS_SDK)/Makefile.defines
-
-#DEFINES += APP_SECRET_MODE_ENABLED
 
 $(info ************ TARGET_NAME  = [$(TARGET_NAME)])
 
@@ -82,7 +80,7 @@ $(info COIN  = [$(COIN)])
 ifeq ($(COIN),POLYX)
 # Main app configuration
 DEFINES += APP_STANDARD
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifneq ($(TARGET_NAME),TARGET_NANOS)
 DEFINES += SUBSTRATE_PARSER_FULL
 endif
 APPNAME = "Polymesh"
@@ -105,11 +103,11 @@ endef
 $(error "$(error_message)")
 endif
 
-APP_LOAD_PARAMS = --delete $(COMMON_LOAD_PARAMS) --path $(APPPATH) --curve ed25519
+APP_LOAD_PARAMS = --curve ed25519 $(COMMON_LOAD_PARAMS) --path $(APPPATH)
 
 ifeq ($(TARGET_NAME),TARGET_NANOS)
 APP_LOAD_PARAMS += --appFlags 0x000
-APP_STACK_SIZE:=3172
+APP_STACK_SIZE:=3160
 ICONNAME:=$(CURDIR)/nanos_icon.gif
 OUTPUT_ELF ?= $(CURDIR)/output/app_s.elf
 OUTPUT_INSTALLER := $(CURDIR)/pkg/installer_s.sh
@@ -120,7 +118,15 @@ APP_LOAD_PARAMS += --appFlags 0x200
 SCRIPT_LD:=$(CURDIR)/script_x.ld
 ICONNAME:=$(CURDIR)/nanox_icon.gif
 OUTPUT_ELF ?= $(CURDIR)/output/app_x.elf
-OUTPUT_INSTALLER:= $(CURDIR)/pkg/installer_XL.sh
+OUTPUT_INSTALLER:= $(CURDIR)/pkg/installer_x.sh
+endif
+
+ifeq ($(TARGET_NAME),TARGET_NANOS2)
+APP_LOAD_PARAMS += --appFlags 0x000
+SCRIPT_LD:=$(CURDIR)/script_s2.ld
+ICONNAME:=$(CURDIR)/nanox_icon.gif
+OUTPUT_ELF ?= $(CURDIR)/output/app_s2.elf
+OUTPUT_INSTALLER:= $(CURDIR)/pkg/installer_s2.sh
 endif
 
 $(info TARGET_NAME  = [$(TARGET_NAME)])
@@ -149,7 +155,10 @@ DEFINES       += HAVE_BOLOS_APP_STACK_CANARY
 
 DEFINES       += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifeq ($(TARGET_NAME),TARGET_NANOS)
+DEFINES       += IO_SEPROXYHAL_BUFFER_SIZE_B=128
+else
+# Assume Nano X/S+
 DEFINES       += IO_SEPROXYHAL_BUFFER_SIZE_B=300
 
 DEFINES       += HAVE_GLO096
@@ -160,17 +169,15 @@ DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
 DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
 
 DEFINES       += HAVE_UX_FLOW
+endif
 
+ifeq ($(TARGET_NAME),TARGET_NANOX)
+# X specific
 DEFINES       += HAVE_BLE
 DEFINES       += HAVE_BLE_APDU BLE_COMMAND_TIMEOUT_MS=2000
 
 SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
-else
-# Assume Nano S
-DEFINES       += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 endif
-
-# X specific
 
 # App specific
 
@@ -240,11 +247,11 @@ clean: rust_clean
 # load, delete and listvariants are provided to comply with Ledger requirements
 .PHONY: load
 load:
-	python -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
+	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
 
 .PHONY: delete
 delete:
-	python -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
+	python3 -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
 
 # Import generic rules from the SDK
 include $(BOLOS_SDK)/Makefile.rules
@@ -256,6 +263,10 @@ dep/%.d: %.c Makefile
 listvariants:
 ifeq ($(TARGET_NAME),TARGET_NANOS)
 	@echo VARIANTS COIN POLYX POLYX_XL
-else ifeq ($(TARGET_NAME),TARGET_NANOX)
+else
 	@echo VARIANTS COIN POLYX
 endif
+
+.PHONY: version
+version:
+	@echo "v$(APPVERSION)" > app.version
