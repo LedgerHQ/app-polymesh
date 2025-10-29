@@ -71,7 +71,7 @@ describe('Standard', function () {
 
       expect(resp.major).toEqual(107)
       expect(resp.minor).toEqual(7000)
-      expect(resp.patch).toEqual(4)
+      expect(resp.patch).toEqual(5)
     } finally {
       await sim.close()
     }
