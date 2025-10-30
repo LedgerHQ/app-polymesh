@@ -56,8 +56,6 @@ find_package(jsoncpp CONFIG REQUIRED)
 hunter_add_package(GTest)
 find_package(GTest CONFIG REQUIRED)
 
-add_definitions(-DSUBSTRATE_PARSER_FULL)
-
 if(ENABLE_FUZZING)
     add_definitions(-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1)
     SET(ENABLE_SANITIZERS ON CACHE BOOL "Sanitizer automatically enabled" FORCE)
@@ -121,12 +119,12 @@ execute_process(
         OUTPUT_VARIABLE MINOR_VERSION
 )
 
-message(STATUS "LEDGER_MAJOR_VERSION [${MAJOR_RESULT}]: ${MAJOR_VERSION}" )
-message(STATUS "LEDGER_MINOR_VERSION [${MINOR_RESULT}]: ${MINOR_VERSION}" )
+message(STATUS "MAJOR_VERSION [${MAJOR_RESULT}]: ${MAJOR_VERSION}" )
+message(STATUS "MINOR_VERSION [${MINOR_RESULT}]: ${MINOR_VERSION}" )
 
 add_definitions(
-    -DLEDGER_MAJOR_VERSION=${MAJOR_VERSION}
-    -DLEDGER_MINOR_VERSION=${MINOR_VERSION}
+    -DMAJOR_VERSION=${MAJOR_VERSION}
+    -DMINOR_VERSION=${MINOR_VERSION}
 )
 
 ##############################################################
